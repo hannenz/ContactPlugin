@@ -1,12 +1,16 @@
 <?php
-class RequestsController extends ContactAppController {
+class MessagesController extends ContactAppController {
 
 
 	private $settings;
 
 	private $defaultSettings;
 
-
+/**
+ * name: generateDefaultSettings
+ * Since we cannot assign i18n'zed strings (function calls) to class
+ * properties, we call this function to initialize the default settings
+ */
 	private function generateDefaultSettings(){
 		$this->defaultSettings = array(
 			'saveDb' => true,
@@ -46,7 +50,13 @@ class RequestsController extends ContactAppController {
 		);
 	}
 
-
+/**
+ * name: beforeFilter
+ * Callback
+ *
+ * Initializes default settings, reads and merges custom settings
+ * and validation rules
+ */
 	public function beforeFilter(){
 		parent::beforeFilter();
 		$this->generateDefaultSettings();
@@ -55,10 +65,11 @@ class RequestsController extends ContactAppController {
 			$settings = array();
 		}
 		$this->settings = array_merge($this->defaultSettings, $settings);
-		$this->Request->validate = $this->settings['validate'];
+		$this->Message->validate = $this->settings['validate'];
 	}
 
 /**
+ * name: add
  * Add a request
  * means: get form data from contact form, optionally store in db,
  * trigger email to receipient.
@@ -72,47 +83,66 @@ class RequestsController extends ContactAppController {
 			foreach ($this->settings['recipients'] as $rec => $dat){
 				$recipients[] = $rec;
 			}
-			$this->request->data['Request']['recipients'] = join(';', $recipients);
+			$this->request->data['Message']['recipients'] = join(';', $recipients);
 
-			// Prepare data to be validated as if it was the Request model's data
+			// Prepare data to be validated as if it was the Message model's data
 			$vData = array();
-			foreach ($this->request->data['RequestDetail'] as $detail){
+			foreach ($this->request->data['MessageDetail'] as $detail){
 				$key = key($detail);
 				$val = $detail[$key];
-				$vData['Request'][$key] = $val;
+				$vData['Message'][$key] = $val;
 			}
 
 			// Validate
-			$this->Request->set($vData);
-			if ($this->Request->validates()){
+			$this->Message->set($vData);
+			if ($this->Message->validates()){
 				if ($this->settings['saveDb']){
 
 					// Save everything to db
-					if (!$this->Request->saveAssociated($this->request->data)){
-						$this->Session->setFlash('The message could not been saved');
+					$this->Message->save($this->request->data);
+					foreach ($this->request->data['MessageDetail'] as $detail){
+						$key = key($detail);
+						$this->Message->MessageDetail->create();
+						$this->Message->MessageDetail->save(array(
+							'MessageDetail' => array(
+								'request_id' => $this->Message->id,
+								'field' => $key,
+								'value' => $detail[$key]
+							)
+						));
 					}
+
+					//~ if (!$this->Message->saveAll($this->request->data, array('validate' => 'first'))){
+						//~ $this->Session->setFlash('The message could not been saved');
+					//~ }
 				}
 
 				// Send the email(s)
-
 				$success = $this->sendEmail();
 
 				if ($this->settings['saveDb']){
-					$this->Request->saveField('success', $success);
+					$this->Message->saveField('success', $success);
 				}
 
 				$this->Session->setFlash($success ? __('Your message has been sent') : __('Failed to send message'));
-				$this->redirect($this->request->data['Request']['redirect']);
+				$this->redirect($this->request->data['Message']['redirect']);
 			}
 			else {
-				$this->set('validationErrors', $this->Request->validationErrors);
+				$this->set('validationErrors', $this->Message->validationErrors);
 				$this->Session->setFlash('Please check the form');
 			}
 		}
 		$this->render('/Pages/contact');
 	}
 
+
+/**
+ * name: sendEmail
+ * sends an E-Mail
+ */
 	public function sendEmail(){
 		return true;
 	}
+
+
 }
