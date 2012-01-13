@@ -5,9 +5,6 @@ class Request extends AppModel {
 		'RequestDetail'
 	);
 
-	function __construct(){
-		parent::__construct();
-		$this->validate = Configure::read('ContactPlugin.validate');
+	public function beforeSave(){
 	}
-
 }
