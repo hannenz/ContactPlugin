@@ -1,4 +1,8 @@
 <?php
+
+App::uses('CakeEmail', 'Network/Email');
+
+
 class MessagesController extends ContactAppController {
 
 
@@ -111,14 +115,10 @@ class MessagesController extends ContactAppController {
 							)
 						));
 					}
-
-					//~ if (!$this->Message->saveAll($this->request->data, array('validate' => 'first'))){
-						//~ $this->Session->setFlash('The message could not been saved');
-					//~ }
 				}
 
 				// Send the email(s)
-				$success = $this->sendEmail();
+				$success = $this->sendEmail($vData);
 
 				if ($this->settings['saveDb']){
 					$this->Message->saveField('success', $success);
@@ -140,8 +140,28 @@ class MessagesController extends ContactAppController {
  * name: sendEmail
  * sends an E-Mail
  */
-	public function sendEmail(){
-		return true;
+	public function sendEmail($data){
+
+		$success = true;
+
+		foreach ($this->settings['recipients'] as $recipient => $config){
+			if (is_numeric($recipient)){
+				$recipient = $config;
+				$config = null;
+			}
+			$email = new CakeEmail($config);
+			$email->sender($this->settings['sender'])
+				->emailFormat('both')
+				->template('contact', 'default')
+				->viewVars($data)
+				->from($this->settings['sender'])
+				->to($recipient)
+			;
+			if (!$email->send()){
+				$success = false;
+			}
+		}
+		return $success;
 	}
 
 
