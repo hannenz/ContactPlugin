@@ -2,12 +2,12 @@
 
 CakePHP plugin (Cake >= 2.0)
 
-Handles standard contact forms
+Handles standard contact forms with arbitrary form fields. Handles validation of user input and optionally stores messages in database.
 
 ##Install
 
 Drop Plugin into `app/Plugin`
-[Optional] Create database tables as found in `Contact/Config/contact.sql`
+[Optional] Create database tables as found in `app/Plugin/Contact/Config/contact.sql`
 
 (You may configure the plugin not to store messages in the database, in which case
 you don't need the tables of course)
