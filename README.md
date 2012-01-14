@@ -19,13 +19,13 @@ Configure global E-Mail settings in app/Config/email.php
 Configure Plugin in `app/Plugin/Contact/Config/contact.php`
 
 ##Usage
-Include the Plugin's helper, in your (App)Controller do:
+Include the Plugin's helper, in your (App)Controller:
 
 ~~~
 public $helpers = array('Contact.Contact');
 ~~~
 
-In your view to output the contact form do:
+To output the contact form from inside your view:
 
 ~~~
 echo $this->Contact->form();
