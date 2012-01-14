@@ -4,7 +4,7 @@ CakePHP plugin (Cake >= 2.0)
 
 Handles standard contact forms with arbitrary form fields. Handles validation of user input and optionally stores messages in database.
 
-##Install
+###Install
 
 Drop Plugin into `app/Plugin`
 [Optional] Create database tables as found in `app/Plugin/Contact/Config/contact.sql`
@@ -13,12 +13,12 @@ Drop Plugin into `app/Plugin`
 you don't need the tables of course)
 
 
-##Configuration
+###Configuration
 
 Configure global E-Mail settings in app/Config/email.php
 Configure Plugin in `app/Plugin/Contact/Config/contact.php`
 
-##Usage
+###Usage
 Include the Plugin's helper, in your (App)Controller:
 
 ~~~
@@ -31,7 +31,7 @@ To output the contact form from inside your view:
 echo $this->Contact->form();
 ~~~
 
-##E-Mail views
+###E-Mail Templates
 
 The layouts and templates for the e-mails can be found at `app/Plugin/Contact/View/Layouts/Email` and `/app/Plugin/Contact/View/Email`.
 
