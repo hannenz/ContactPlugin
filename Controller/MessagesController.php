@@ -1,74 +1,21 @@
 <?php
-
 App::uses('CakeEmail', 'Network/Email');
-
 
 class MessagesController extends ContactAppController {
 
-
 	private $settings;
-
-	private $defaultSettings;
-
-/**
- * name: generateDefaultSettings
- * Since we cannot assign i18n'zed strings (function calls) to class
- * properties, we call this function to initialize the default settings
- */
-	private function generateDefaultSettings(){
-		$this->defaultSettings = array(
-			'saveDb' => true,
-			'redirect' => '/',
-			'sender' => 'noreply@'.$_SERVER['SERVER_NAME'],
-			'recipients' => array(),
-			'fields' => array(
-				'name',
-				'email',
-				'message' => array(
-					'type' => 'textarea'
-				)
-			),
-			'validate' => array(
-				'name' => array(
-					'rule' => 'notEmpty',
-					'required' => true,
-					'message' => __('Please enter your name')
-				),
-				'email' => array(
-					'notempty' => array(
-						'rule' => 'notEmpty',
-						'required' => true,
-						'message' => __('Please enter your email address')
-					),
-					'valid' => array(
-						'rule' => array('email', true),
-						'message' => __('Please enter a valid email address')
-					)
-				),
-				'message' => array(
-					'rule' => 'notEmpty',
-					'required' => true,
-					'message' => __('Please enter your message')
-				)
-			)
-		);
-	}
 
 /**
  * name: beforeFilter
  * Callback
  *
- * Initializes default settings, reads and merges custom settings
- * and validation rules
+ * Read settings from Config,
+ * set validation rules on Model
  */
 	public function beforeFilter(){
 		parent::beforeFilter();
-		$this->generateDefaultSettings();
-		$settings = Configure::read('ContactPlugin');
-		if (empty($settings)){
-			$settings = array();
-		}
-		$this->settings = array_merge($this->defaultSettings, $settings);
+		Configure::load('Contact.contact');
+		$this->settings = Configure::read('ContactPlugin');
 		$this->Message->validate = $this->settings['validate'];
 	}
 
@@ -81,13 +28,7 @@ class MessagesController extends ContactAppController {
 	public function add(){
 		if ($this->request->is('post')){
 
-			// Concatenate all recipient email addresses into one
-			// semicolon separated string and store in data
-			$recipients = array();
-			foreach ($this->settings['recipients'] as $rec => $dat){
-				$recipients[] = $rec;
-			}
-			$this->request->data['Message']['recipients'] = join(';', $recipients);
+			$this->request->data['Message']['recipients'] = join(';', is_array($this->settings['recipients']) ? $this->settings['recipients'] : array($this->settings['recipients']));
 
 			// Prepare data to be validated as if it was the Message model's data
 			$vData = array();
@@ -124,7 +65,7 @@ class MessagesController extends ContactAppController {
 					$this->Message->saveField('success', $success);
 				}
 
-				$this->Session->setFlash($success ? __('Your message has been sent') : __('Failed to send message'));
+				$this->Session->setFlash($success ? $this->settings['flashSuccess'] : $this->settings['flashFailure']);
 				$this->redirect($this->request->data['Message']['redirect']);
 			}
 			else {
@@ -138,31 +79,22 @@ class MessagesController extends ContactAppController {
 
 /**
  * name: sendEmail
- * sends an E-Mail
+ * sends E-Mail(s) to all recipients specified in config
  */
 	public function sendEmail($data){
 
-		$success = true;
-
-		foreach ($this->settings['recipients'] as $recipient => $config){
-			if (is_numeric($recipient)){
-				$recipient = $config;
-				$config = null;
-			}
-			$email = new CakeEmail($config);
-			$email->sender($this->settings['sender'])
-				->emailFormat('debug')
-				->template('contact', 'default')
-				->viewVars($data)
-				->from($this->settings['sender'])
-				->to($recipient)
-			;
-			if (!$email->send()){
-				$success = false;
-			}
-		}
-		return $success;
+		$email = new CakeEmail();
+		$email
+			->sender($this->settings['sender'])
+			->emailFormat('both')
+			->template('Contact.message', 'Contact.default')
+			->viewVars($data)
+			->from($this->settings['sender'])
+			->to($this->settings['recipients'])
+			->subject($this->settings['subject'])
+		;
+		$ret = $email->send();
+		return (!empty($ret));
 	}
-
 
 }
