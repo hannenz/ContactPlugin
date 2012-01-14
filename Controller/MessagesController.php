@@ -83,13 +83,11 @@ class MessagesController extends ContactAppController {
  */
 	public function sendEmail($data){
 
-		$email = new CakeEmail();
+		$email = new CakeEmail($this->settings['emailConfig']);
 		$email
-			->sender($this->settings['sender'])
 			->emailFormat('both')
 			->template('Contact.message', 'Contact.default')
 			->viewVars($data)
-			->from($this->settings['sender'])
 			->to($this->settings['recipients'])
 			->subject($this->settings['subject'])
 		;

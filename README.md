@@ -36,5 +36,17 @@ echo $this->Contact->form();
 
 The layouts and templates for the e-mails can be found at `app/Plugin/Contact/View/Layouts/Email` and `/app/Plugin/Contact/View/Email`.
 
+###Reading messages from database
+
+To retrieve the messages (if stored in database), you can query the Plugin's Messages model:
+
+~~~
+App::uses('AppModel', 'Model');
+App::uses('Message', 'Contact.Model');
+$Message = new Message;
+$messages = $Message->find('all');
+
+~~~
+
 That's it. Enjoy
 

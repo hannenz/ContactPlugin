@@ -11,11 +11,12 @@ $config = array(
 		// Redirect after message has been sent
 		'redirect' => '/',
 
-		// Sender of the message(s)
-		'sender' => 'noreply@'.$_SERVER['SERVER_NAME'],
+		// Email configuration as configured in /app/Config/email.php (the variable name)
+		'emailConfig' => 'smtp',
 
 		// Recipient(s) of the message(s)
 		'recipients' => array(
+			'me@hannenz.de',
 			'info@'.$_SERVER['SERVER_NAME']
 		),
 
