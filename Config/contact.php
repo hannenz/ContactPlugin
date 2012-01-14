@@ -16,8 +16,7 @@ $config = array(
 
 		// Recipient(s) of the message(s)
 		'recipients' => array(
-			'me@hannenz.de'
-			//~ 'info@'.$_SERVER['SERVER_NAME']
+			'info@'.$_SERVER['SERVER_NAME']
 		),
 
 		// The message's subject
