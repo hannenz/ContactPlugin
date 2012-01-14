@@ -151,7 +151,7 @@ class MessagesController extends ContactAppController {
 			}
 			$email = new CakeEmail($config);
 			$email->sender($this->settings['sender'])
-				->emailFormat('both')
+				->emailFormat('debug')
 				->template('contact', 'default')
 				->viewVars($data)
 				->from($this->settings['sender'])
