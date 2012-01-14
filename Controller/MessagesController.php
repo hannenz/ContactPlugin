@@ -50,7 +50,7 @@ class MessagesController extends ContactAppController {
 						$this->Message->MessageDetail->create();
 						$this->Message->MessageDetail->save(array(
 							'MessageDetail' => array(
-								'request_id' => $this->Message->id,
+								'message_id' => $this->Message->id,
 								'field' => $key,
 								'value' => $detail[$key]
 							)
