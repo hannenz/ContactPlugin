@@ -15,8 +15,9 @@ you don't need the tables of course)
 
 ###Configuration
 
-Configure global E-Mail settings in app/Config/email.php
-Configure Plugin in `app/Plugin/Contact/Config/contact.php`
+- Configure global E-Mail settings in `app/Config/email.php`
+
+- Configure Plugin in `app/Plugin/Contact/Config/contact.php`
 
 ###Usage
 Include the Plugin's helper, in your (App)Controller:
